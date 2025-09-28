@@ -1,10 +1,9 @@
-from flask import Flask, render_template, request, flash, redirect
+from flask import Flask, render_template, request
 import pickle
 import numpy as np
 from PIL import Image
 from tensorflow.keras.models import load_model
-
-
+import os
 
 app = Flask(__name__)
 
@@ -110,4 +109,6 @@ def pneumoniapredictPage():
     return render_template('pneumonia_predict.html', pred = pred)
 
 if __name__ == '__main__':
-	app.run(debug = True)
+    # Render requires dynamic port
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
