@@ -1,0 +1,767 @@
+{% extends 'main.html' %}
+{% block content %}
+
+<style>
+  /* Results Page Styles */
+  .results-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .result-card {
+    background: var(--surface-color);
+    border-radius: var(--border-radius);
+    padding: 3rem 2rem;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border-color);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    animation: slideInUp 0.6s ease-out;
+  }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Disease Result Styles */
+  .result-disease {
+    border-top: 4px solid var(--danger-color);
+  }
+
+  .result-disease::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
+    pointer-events: none;
+  }
+
+  .result-healthy {
+    border-top: 4px solid var(--success-color);
+  }
+
+  .result-healthy::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05));
+    pointer-events: none;
+  }
+
+  .result-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Result Icon */
+  .result-icon {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    font-size: 3rem;
+    position: relative;
+    animation: pulse 2s infinite;
+  }
+
+  .result-icon.disease {
+    background: linear-gradient(135deg, var(--danger-color), #dc2626);
+    color: white;
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.3);
+  }
+
+  .result-icon.healthy {
+    background: linear-gradient(135deg, var(--success-color), #059669);
+    color: white;
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+  }
+
+  @keyframes pulse {
+
+    0%,
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 30px rgba(var(--shadow-color), 0.3);
+    }
+
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 0 40px rgba(var(--shadow-color), 0.4);
+    }
+  }
+
+  /* Result Title */
+  .result-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+  }
+
+  .result-title.disease {
+    color: var(--danger-color);
+    text-shadow: 0 2px 4px rgba(239, 68, 68, 0.1);
+  }
+
+  .result-title.healthy {
+    color: var(--success-color);
+    text-shadow: 0 2px 4px rgba(16, 185, 129, 0.1);
+  }
+
+  /* Result Description */
+  .result-description {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .result-advice {
+    background: rgba(var(--primary-rgb), 0.1);
+    border-left: 4px solid var(--primary-color);
+    padding: 1.5rem;
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    margin: 2rem 0;
+    font-style: italic;
+  }
+
+  .result-advice.disease {
+    background: rgba(239, 68, 68, 0.1);
+    border-left-color: var(--danger-color);
+  }
+
+  .result-advice.healthy {
+    background: rgba(16, 185, 129, 0.1);
+    border-left-color: var(--success-color);
+  }
+
+  /* Action Buttons */
+  .result-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+  }
+
+  .btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--transition);
+    box-shadow: var(--shadow-md);
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-primary-action {
+    background: var(--gradient-primary);
+    color: white;
+  }
+
+  .btn-primary-action:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    color: white;
+  }
+
+  .btn-secondary-action {
+    background: var(--surface-color);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+  }
+
+  .btn-secondary-action:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+  }
+
+  .btn-info-action {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+  }
+
+  .btn-info-action:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    color: white;
+  }
+
+  /* Additional Information Section */
+  .info-section {
+    background: var(--surface-color);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .info-item {
+    text-align: center;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+  }
+
+  .info-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .info-item-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+  }
+
+  .info-item-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .info-item-text {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+
+  /* Health Tips Section */
+  .health-tips {
+    background: var(--surface-color);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+  }
+
+  .health-tips h3 {
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  .tips-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .tips-list li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .tips-list li:last-child {
+    border-bottom: none;
+  }
+
+  .tip-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Disclaimer */
+  .disclaimer {
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid #ffc107;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin: 2rem 0;
+    text-align: center;
+  }
+
+  .disclaimer-icon {
+    font-size: 2rem;
+    color: #ffc107;
+    margin-bottom: 1rem;
+  }
+
+  .disclaimer-text {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .results-container {
+      padding: 0 0.5rem;
+    }
+
+    .result-card {
+      padding: 2rem 1.5rem;
+    }
+
+    .result-title {
+      font-size: 2rem;
+    }
+
+    .result-actions {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .btn-action {
+      width: 100%;
+      max-width: 300px;
+      justify-content: center;
+    }
+
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .result-icon {
+      width: 80px;
+      height: 80px;
+      font-size: 2rem;
+    }
+
+    .result-title {
+      font-size: 1.8rem;
+    }
+
+    .result-description {
+      font-size: 1rem;
+    }
+  }
+</style>
+
+<div class="results-container">
+  {% if pred == 1 %}
+  <!-- Disease Detected Result -->
+  <div class="result-card result-disease">
+    <div class="result-content">
+      <div class="result-icon disease">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <h1 class="result-title disease">Kidney Disease Risk Detected</h1>
+      <p class="result-description">
+        Based on the medical parameters you provided, our AI model has identified potential indicators
+        of chronic kidney disease. This requires immediate medical attention and proper consultation
+        with healthcare professionals.
+      </p>
+      <div class="result-advice disease">
+        <strong>⚠️ Important:</strong> Please consult with a doctor immediately. Early detection and
+        treatment can significantly improve outcomes and prevent further complications.
+      </div>
+      <div class="result-actions">
+        <a href="https://www.who.int/news-room/fact-sheets/detail/kidney-disease" target="_blank"
+          class="btn-action btn-info-action">
+          <i class="fas fa-book-medical"></i> Learn More About Kidney Disease
+        </a>
+        <a href="{{ url_for('kidneyPage') }}" class="btn-action btn-secondary-action">
+          <i class="fas fa-redo"></i> Test Again
+        </a>
+        <a href="{{ url_for('home') }}" class="btn-action btn-primary-action">
+          <i class="fas fa-home"></i> Back to Home
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Health Tips for Disease Case -->
+  <div class="health-tips">
+    <h3><i class="fas fa-heartbeat"></i> Immediate Actions to Take</h3>
+    <ul class="tips-list">
+      <li>
+        <div class="tip-icon"><i class="fas fa-user-md"></i></div>
+        <div>
+          <strong>Consult a Nephrologist:</strong> Schedule an appointment with a kidney specialist as soon as possible
+        </div>
+      </li>
+      <li>
+        <div class="tip-icon"><i class="fas fa-flask"></i></div>
+        <div>
+          <strong>Get Additional Tests:</strong> Request comprehensive kidney function tests and imaging studies
+        </div>
+      </li>
+      <li>
+        <div class="tip-icon"><i class="fas fa-tint"></i></div>
+        <div>
+          <strong>Monitor Fluid Intake:</strong> Follow medical advice on fluid restrictions if recommended
+        </div>
+      </li>
+      <li>
+        <div class="tip-icon"><i class="fas fa-pills"></i></div>
+        <div>
+          <strong>Medication Review:</strong> Discuss all current medications with your doctor
+        </div>
+      </li>
+      <li>
+        <div class="tip-icon"><i class="fas fa-utensils"></i></div>
+        <div>
+          <strong>Dietary Changes:</strong> Consider a kidney-friendly diet with reduced sodium and protein
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  {% else %}
+  <!-- Healthy Result -->
+  <div class="result-card result-healthy">
+    <div class="result-content">
+      <div class="result-icon healthy">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <h1 class="result-title healthy">Excellent! You're Healthy</h1>
+      <p class="result-description">
+        Great news! Based on your medical parameters, our AI model indicates no signs of chronic kidney disease.
+        Your kidney function appears to be within normal ranges. Continue maintaining your healthy lifestyle!
+      </p>
+      <div class="result-advice healthy">
+        <strong>💚 Stay Healthy:</strong> Maintain your current healthy habits and continue regular health
+        checkups to keep your kidneys functioning optimally.
+      </div>
+      <div class="result-actions">
+        <a href="https://www.who.int/news-room/fact-sheets/detail/kidney-disease" target="_blank"
+          class="btn-action btn-info-action">
+          <i class="fas fa-info-circle"></i> Prevention Tips
+        </a>
+        <a href="{{ url_for('kidneyPage') }}" class="btn-action btn-secondary-action">
+          <i class="fas fa-redo"></i> Test Again
+        </a>
+        <a href="{{ url_for('home') }}" class="btn-action btn-primary-action">
+          <i class="fas fa-home"></i> Back to Home
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Health Tips for Healthy Case -->
+  <div class="health-tips">
+    <h3><i class="fas fa-shield-alt"></i> Keep Your Kidneys Healthy</h3>
+    <ul class="tips-list">
+      <li>
+        <div class="tip-icon"><i class="fas fa-glass-water"></i></div>
+        <div>
+          <strong>Stay Hydrated:</strong> Drink 8-10 glasses of water daily to help kidneys filter waste
+        </div>
+      </li>
+      <li>
+        <div class="tip-icon"><i class="fas fa-running"></i></div>
+        <div>
+          <strong>Exercise Regularly:</strong> Maintain 150 minutes of moderate exercise per week
+        </div>
+      </li>
+      <li>
+        <div class="tip-icon"><i class="fas fa-apple-alt"></i></div>
+        <div>
+          <strong>Balanced Diet:</strong> Eat plenty of fruits, vegetables, and limit processed foods
+        </div>
+      </li>
+      <li>
+        <div class="tip-icon"><i class="fas fa-ban"></i></div>
+        <div>
+          <strong>Avoid Smoking:</strong> Smoking can worsen kidney disease and slow blood flow to kidneys
+        </div>
+      </li>
+      <li>
+        <div class="tip-icon"><i class="fas fa-calendar-check"></i></div>
+        <div>
+          <strong>Regular Checkups:</strong> Get annual health screenings including kidney function tests
+        </div>
+      </li>
+    </ul>
+  </div>
+  {% endif %}
+
+  <!-- Additional Information -->
+  <div class="info-section">
+    <h3 style="text-align: center; color: var(--text-primary); margin-bottom: 1rem;">
+      Understanding Our AI Prediction
+    </h3>
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-item-icon">
+          <i class="fas fa-brain"></i>
+        </div>
+        <div class="info-item-title">98% Accuracy</div>
+        <div class="info-item-text">Our XGBoost algorithm achieves 98% accuracy on clinical datasets</div>
+      </div>
+      <div class="info-item">
+        <div class="info-item-icon">
+          <i class="fas fa-database"></i>
+        </div>
+        <div class="info-item-title">1,338+ Records</div>
+        <div class="info-item-text">Trained on comprehensive medical dataset from multiple sources</div>
+      </div>
+      <div class="info-item">
+        <div class="info-item-icon">
+          <i class="fas fa-microscope"></i>
+        </div>
+        <div class="info-item-title">18 Parameters</div>
+        <div class="info-item-text">Analyzes multiple biomarkers for comprehensive assessment</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Disclaimer -->
+  <div class="disclaimer">
+    <div class="disclaimer-icon">
+      <i class="fas fa-exclamation-circle"></i>
+    </div>
+    <div class="disclaimer-text">
+      <strong>Medical Disclaimer:</strong> This AI prediction tool is for informational purposes only and
+      should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified
+      healthcare professionals for medical concerns. The results are based on machine learning algorithms
+      and may not reflect your complete health status.
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Add entrance animation
+    const resultCard = document.querySelector('.result-card');
+    const additionalSections = document.querySelectorAll('.health-tips, .info-section, .disclaimer');
+
+    // Animate result card
+    setTimeout(() => {
+      resultCard.style.transform = 'translateY(0)';
+      resultCard.style.opacity = '1';
+    }, 200);
+
+    // Stagger additional sections
+    additionalSections.forEach((section, index) => {
+      section.style.opacity = '0';
+      section.style.transform = 'translateY(30px)';
+      section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+
+      setTimeout(() => {
+        section.style.opacity = '1';
+        section.style.transform = 'translateY(0)';
+      }, 600 + (index * 200));
+    });
+
+    // Add confetti effect for healthy results
+    const healthyIcon = document.querySelector('.result-icon.healthy');
+    if (healthyIcon) {
+      setTimeout(() => {
+        createConfetti();
+      }, 1000);
+    }
+
+    // Add pulse effect for disease results
+    const diseaseIcon = document.querySelector('.result-icon.disease');
+    if (diseaseIcon) {
+      diseaseIcon.style.animation = 'pulse 2s infinite, shake 0.5s ease-in-out';
+    }
+  });
+
+  // Confetti animation for healthy results
+  function createConfetti() {
+    const colors = ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0'];
+    const confettiCount = 50;
+
+    for (let i = 0; i < confettiCount; i++) {
+      setTimeout(() => {
+        const confetti = document.createElement('div');
+        confetti.style.cssText = `
+                    position: fixed;
+                    width: 6px;
+                    height: 6px;
+                    background: ${colors[Math.floor(Math.random() * colors.length)]};
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 10000;
+                    top: 20%;
+                    left: ${Math.random() * 100}%;
+                    animation: confetti-fall 3s linear forwards;
+                `;
+
+        document.body.appendChild(confetti);
+
+        setTimeout(() => {
+          confetti.remove();
+        }, 3000);
+      }, i * 50);
+    }
+  }
+
+  // Add confetti animation keyframes
+  const style = document.createElement('style');
+  style.textContent = `
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+    `;
+  document.head.appendChild(style);
+
+  // Add click effects to action buttons
+  document.querySelectorAll('.btn-action').forEach(button => {
+    button.addEventListener('click', function (e) {
+      const ripple = document.createElement('span');
+      const rect = this.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      const x = e.clientX - rect.left - size / 2;
+      const y = e.clientY - rect.top - size / 2;
+
+      ripple.style.cssText = `
+                position: absolute;
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}px;
+                top: ${y}px;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                pointer-events: none;
+            `;
+
+      this.style.position = 'relative';
+      this.style.overflow = 'hidden';
+      this.appendChild(ripple);
+
+      setTimeout(() => {
+        ripple.remove();
+      }, 600);
+    });
+  });
+
+  // Add ripple animation
+  const rippleStyle = document.createElement('style');
+  rippleStyle.textContent = `
+        @keyframes ripple {
+            to {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+    `;
+  document.head.appendChild(rippleStyle);
+
+  // Add hover effects to info items
+  document.querySelectorAll('.info-item').forEach(item => {
+    item.addEventListener('mouseenter', function () {
+      const icon = this.querySelector('.info-item-icon');
+      icon.style.transform = 'scale(1.2) rotate(10deg)';
+      icon.style.color = 'var(--secondary-color)';
+    });
+
+    item.addEventListener('mouseleave', function () {
+      const icon = this.querySelector('.info-item-icon');
+      icon.style.transform = 'scale(1) rotate(0deg)';
+      icon.style.color = 'var(--primary-color)';
+    });
+  });
+
+  // Add scroll animations for tips
+  const tipsList = document.querySelectorAll('.tips-list li');
+  tipsList.forEach((tip, index) => {
+    tip.style.opacity = '0';
+    tip.style.transform = 'translateX(-20px)';
+    tip.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+
+    setTimeout(() => {
+      tip.style.opacity = '1';
+      tip.style.transform = 'translateX(0)';
+    }, 1000 + (index * 100));
+  });
+
+  // Add print functionality
+  function printResults() {
+    window.print();
+  }
+
+  // Add keyboard shortcuts
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      window.location.href = "{{ url_for('home') }}";
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      const testAgainBtn = document.querySelector('a[href="{{ url_for("kidneyPage") }}"]');
+      if (testAgainBtn) {
+        testAgainBtn.click();
+      }
+    }
+  });
+
+  // Add social sharing functionality (optional)
+  function shareResults() {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Kidney Health Check Results',
+        text: 'I just completed a kidney health assessment using AI technology.',
+        url: window.location.href
+      });
+    }
+  }
+
+  // Performance tracking (optional)
+  const loadTime = performance.now();
+  console.log(`Results page loaded in ${loadTime.toFixed(2)}ms`);
+</script>
+
+{% endblock %}

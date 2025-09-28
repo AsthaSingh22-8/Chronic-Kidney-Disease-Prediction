@@ -1,0 +1,900 @@
+{% extends 'main.html' %}
+{% block content %}
+
+<style>
+    /* Form Container Styles */
+    .prediction-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        background: var(--gradient-primary);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .form-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="%23ffffff" stroke-width="0.5" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+        opacity: 0.1;
+    }
+
+    .form-header-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .form-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* Enhanced Form Card */
+    .form-card {
+        background: var(--surface-color);
+        border-radius: var(--border-radius);
+        padding: 3rem;
+        box-shadow: var(--shadow-xl);
+        border: 1px solid var(--border-color);
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 3rem;
+    }
+
+    .form-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient-primary);
+    }
+
+    /* Form Groups and Inputs */
+    .form-section {
+        margin-bottom: 2.5rem;
+    }
+
+    .section-label {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        position: relative;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid var(--border-color);
+        border-radius: var(--border-radius);
+        background: var(--surface-color);
+        color: var(--text-primary);
+        font-size: 1rem;
+        transition: var(--transition);
+        font-family: inherit;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .form-control::placeholder {
+        color: var(--text-muted);
+        transition: var(--transition);
+    }
+
+    .form-control:focus::placeholder {
+        opacity: 0.7;
+        transform: translateY(-2px);
+    }
+
+    /* Input Labels */
+    .input-label {
+        position: absolute;
+        top: -0.5rem;
+        left: 1rem;
+        background: var(--surface-color);
+        color: var(--text-secondary);
+        padding: 0 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        pointer-events: none;
+        transition: var(--transition);
+    }
+
+    .form-control:focus+.input-label {
+        color: var(--primary-color);
+    }
+
+    /* Enhanced Submit Button */
+    .submit-btn {
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+        padding: 1.2rem 3rem;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: var(--transition);
+        box-shadow: var(--shadow-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 2rem auto 0;
+        min-width: 200px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .submit-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: var(--transition);
+    }
+
+    .submit-btn:hover::before {
+        left: 100%;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .submit-btn:active {
+        transform: translateY(-1px);
+    }
+
+    /* Sample Data Table */
+    .sample-section {
+        background: var(--surface-color);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--border-color);
+        margin-top: 3rem;
+    }
+
+    .sample-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        text-align: center;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+    .sample-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background: var(--gradient-primary);
+        border-radius: 2px;
+    }
+
+    /* Enhanced Table */
+    .table-container {
+        overflow-x: auto;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-md);
+        background: var(--surface-color);
+    }
+
+    .enhanced-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+
+    .enhanced-table thead {
+        background: var(--gradient-primary);
+        color: white;
+    }
+
+    .enhanced-table th,
+    .enhanced-table td {
+        padding: 1rem 0.75rem;
+        text-align: center;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .enhanced-table th {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+    }
+
+    .enhanced-table tbody tr {
+        transition: var(--transition);
+    }
+
+    .enhanced-table tbody tr:hover {
+        background: var(--border-color);
+        transform: scale(1.01);
+    }
+
+    .enhanced-table tbody tr:nth-child(even) {
+        background: rgba(0, 0, 0, 0.02);
+    }
+
+    [data-theme="dark"] .enhanced-table tbody tr:nth-child(even) {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Status badges in table */
+    .status-healthy {
+        background: var(--success-color);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .status-disease {
+        background: var(--danger-color);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    /* Loading Animation */
+    .btn-loading {
+        pointer-events: none;
+        opacity: 0.7;
+    }
+
+    .btn-loading .btn-text {
+        opacity: 0;
+    }
+
+    .btn-loading .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid transparent;
+        border-top: 2px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        position: absolute;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Info Tooltips */
+    .info-tooltip {
+        position: relative;
+        display: inline-block;
+        margin-left: 0.5rem;
+        cursor: help;
+        color: var(--primary-color);
+    }
+
+    .info-tooltip .tooltip-content {
+        visibility: hidden;
+        opacity: 0;
+        position: absolute;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--text-primary);
+        color: var(--surface-color);
+        padding: 0.5rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        z-index: 1000;
+        transition: var(--transition);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .info-tooltip:hover .tooltip-content {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .prediction-container {
+            padding: 0 0.5rem;
+        }
+
+        .form-card {
+            padding: 2rem 1.5rem;
+        }
+
+        .form-title {
+            font-size: 2rem;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .enhanced-table {
+            font-size: 0.8rem;
+        }
+
+        .enhanced-table th,
+        .enhanced-table td {
+            padding: 0.75rem 0.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .form-header {
+            padding: 1.5rem 1rem;
+        }
+
+        .form-title {
+            font-size: 1.8rem;
+        }
+
+        .submit-btn {
+            padding: 1rem 2rem;
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="prediction-container">
+    <!-- Form Header -->
+    <div class="form-header">
+        <div class="form-header-content">
+            <h1 class="form-title">
+                <i class="fas fa-heartbeat"></i>
+                Kidney Disease Predictor
+            </h1>
+            <p class="form-subtitle">
+                Enter your medical parameters below to get an AI-powered prediction of kidney disease risk.
+                All fields are required for accurate assessment.
+            </p>
+        </div>
+    </div>
+
+    <!-- Prediction Form -->
+    <div class="form-card">
+        <form class="prediction-form" action="{{ url_for('predictPage') }}" method="POST" id="predictionForm">
+            <!-- Basic Information Section -->
+            <div class="form-section">
+                <h3 class="section-label">
+                    <i class="fas fa-user"></i>
+                    Basic Information
+                </h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="age" placeholder="Enter your age" required
+                            min="1" max="120">
+                        <label class="input-label">Age (years)</label>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="bp" placeholder="Blood pressure" required
+                            min="50" max="250" step="0.1">
+                        <label class="input-label">Blood Pressure (mmHg) <span class="info-tooltip"><i
+                                    class="fas fa-info-circle"></i><span class="tooltip-content">Normal: 120/80
+                                    mmHg</span></span></label>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="al" placeholder="Albumin level" required min="0"
+                            max="5" step="0.1">
+                        <label class="input-label">Albumin Level <span class="info-tooltip"><i
+                                    class="fas fa-info-circle"></i><span class="tooltip-content">0-5
+                                    scale</span></span></label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lab Results Section -->
+            <div class="form-section">
+                <h3 class="section-label">
+                    <i class="fas fa-flask"></i>
+                    Laboratory Results
+                </h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="su" placeholder="Sugar level" required min="0"
+                            max="5" step="0.1">
+                        <label class="input-label">Sugar Level <span class="info-tooltip"><i
+                                    class="fas fa-info-circle"></i><span class="tooltip-content">0-5
+                                    scale</span></span></label>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="rbc" placeholder="Red blood cells" required
+                            min="0" max="1" step="1">
+                        <label class="input-label">Red Blood Cells <span class="info-tooltip"><i
+                                    class="fas fa-info-circle"></i><span class="tooltip-content">0: Abnormal, 1:
+                                    Normal</span></span></label>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="pc" placeholder="Pus cell" required min="0"
+                            max="1" step="1">
+                        <label class="input-label">Pus Cell <span class="info-tooltip"><i
+                                    class="fas fa-info-circle"></i><span class="tooltip-content">0: Normal, 1:
+                                    Abnormal</span></span></label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Tests Section -->
+            <div class="form-section">
+                <h3 class="section-label">
+                    <i class="fas fa-microscope"></i>
+                    Additional Tests
+                </h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="pcc" placeholder="Pus cell clumps" required
+                            min="0" max="1" step="1">
+                        <label class="input-label">Pus Cell Clumps <span class="info-tooltip"><i
+                                    class="fas fa-info-circle"></i><span class="tooltip-content">0: Not Present, 1:
+                                    Present</span></span></label>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="ba" placeholder="Bacteria" required min="0"
+                            max="1" step="1">
+                        <label class="input-label">Bacteria <span class="info-tooltip"><i
+                                    class="fas fa-info-circle"></i><span class="tooltip-content">0: Not Present, 1:
+                                    Present</span></span></label>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="bgr" placeholder="Blood glucose random" required
+                            min="50" max="500" step="0.1">
+                        <label class="input-label">Blood Glucose Random (mg/dL)</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blood Chemistry Section -->
+            <div class="form-section">
+                <h3 class="section-label">
+                    <i class="fas fa-vial"></i>
+                    Blood Chemistry
+                </h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="bu" placeholder="Blood urea" required min="10"
+                            max="300" step="0.1">
+                        <label class="input-label">Blood Urea (mg/dL)</label>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="sc" placeholder="Serum creatinine" required
+                            min="0.5" max="15" step="0.1">
+                        <label class="input-label">Serum Creatinine (mg/dL)</label>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="pot" placeholder="Potassium" required min="2"
+                            max="8" step="0.1">
+                        <label class="input-label">Potassium (mEq/L)</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medical History Section -->
+            <div class="form-section">
+                <h3 class="section-label">
+                    <i class="fas fa-notes-medical"></i>
+                    Medical History
+                </h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="wc" placeholder="White cell count" required
+                            min="3000" max="15000" step="100">
+                        <label class="input-label">White Cell Count (cells/cmm)</label>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="htn" placeholder="Hypertension" required min="0"
+                            max="1" step="1">
+                        <label class="input-label">Hypertension <span class="info-tooltip"><i
+                                    class="fas fa-info-circle"></i><span class="tooltip-content">0: No, 1:
+                                    Yes</span></span></label>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="dm" placeholder="Diabetes mellitus" required
+                            min="0" max="1" step="1">
+                        <label class="input-label">Diabetes Mellitus <span class="info-tooltip"><i
+                                    class="fas fa-info-circle"></i><span class="tooltip-content">0: No, 1:
+                                    Yes</span></span></label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Final Medical Parameters -->
+            <div class="form-section">
+                <h3 class="section-label">
+                    <i class="fas fa-heart"></i>
+                    Additional Conditions
+                </h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="cad" placeholder="Coronary artery disease"
+                            required min="0" max="1" step="1">
+                        <label class="input-label">Coronary Artery Disease <span class="info-tooltip"><i
+                                    class="fas fa-info-circle"></i><span class="tooltip-content">0: No, 1:
+                                    Yes</span></span></label>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="pe" placeholder="Pedal edema" required min="0"
+                            max="1" step="1">
+                        <label class="input-label">Pedal Edema <span class="info-tooltip"><i
+                                    class="fas fa-info-circle"></i><span class="tooltip-content">0: No, 1:
+                                    Yes</span></span></label>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="ane" placeholder="Anemia" required min="0"
+                            max="1" step="1">
+                        <label class="input-label">Anemia <span class="info-tooltip"><i
+                                    class="fas fa-info-circle"></i><span class="tooltip-content">0: No, 1:
+                                    Yes</span></span></label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                <span class="btn-text">
+                    <i class="fas fa-stethoscope"></i>
+                    Predict Kidney Disease
+                </span>
+                <div class="loading-spinner" style="display: none;"></div>
+            </button>
+        </form>
+    </div>
+
+    <!-- Sample Data Section -->
+    <div class="sample-section">
+        <h2 class="sample-title">Sample Inputs from Dataset</h2>
+        <div class="table-container">
+            <table class="enhanced-table">
+                <thead>
+                    <tr>
+                        <th>Age</th>
+                        <th>BP</th>
+                        <th>AL</th>
+                        <th>SU</th>
+                        <th>RBC</th>
+                        <th>PC</th>
+                        <th>PCC</th>
+                        <th>BA</th>
+                        <th>BGR</th>
+                        <th>BU</th>
+                        <th>SC</th>
+                        <th>POT</th>
+                        <th>WC</th>
+                        <th>HTN</th>
+                        <th>DM</th>
+                        <th>CAD</th>
+                        <th>PE</th>
+                        <th>ANE</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>24</td>
+                        <td>100</td>
+                        <td>2</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>136</td>
+                        <td>60</td>
+                        <td>1.9</td>
+                        <td>3.7</td>
+                        <td>9600</td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td><span class="status-disease">Disease</span></td>
+                    </tr>
+                    <tr>
+                        <td>68</td>
+                        <td>80</td>
+                        <td>3</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>157</td>
+                        <td>162</td>
+                        <td>9.6</td>
+                        <td>4.9</td>
+                        <td>11000</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td><span class="status-disease">Disease</span></td>
+                    </tr>
+                    <tr>
+                        <td>51</td>
+                        <td>80</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>121</td>
+                        <td>27</td>
+                        <td>0.8</td>
+                        <td>3.7</td>
+                        <td>8300</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td><span class="status-healthy">Healthy</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Form Enhancement Scripts
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('predictionForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const inputs = document.querySelectorAll('.form-control');
+
+        // Form validation and submission
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Add loading state
+            submitBtn.classList.add('btn-loading');
+            submitBtn.querySelector('.loading-spinner').style.display = 'inline-block';
+
+            // Validate all fields
+            let isValid = true;
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    input.style.borderColor = 'var(--danger-color)';
+                    input.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
+                    isValid = false;
+                } else {
+                    input.style.borderColor = 'var(--success-color)';
+                    input.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
+                }
+            });
+
+            if (isValid) {
+                // Simulate processing time
+                setTimeout(() => {
+                    form.submit();
+                }, 1500);
+            } else {
+                // Remove loading state if validation fails
+                setTimeout(() => {
+                    submitBtn.classList.remove('btn-loading');
+                    submitBtn.querySelector('.loading-spinner').style.display = 'none';
+                }, 500);
+
+                // Show error message
+                showNotification('Please fill in all required fields', 'error');
+            }
+        });
+
+        // Input focus effects
+        inputs.forEach(input => {
+            input.addEventListener('focus', function () {
+                this.parentElement.style.transform = 'translateY(-2px)';
+                this.style.borderColor = 'var(--primary-color)';
+            });
+
+            input.addEventListener('blur', function () {
+                this.parentElement.style.transform = 'translateY(0)';
+                if (!this.value.trim()) {
+                    this.style.borderColor = 'var(--border-color)';
+                }
+            });
+
+            input.addEventListener('input', function () {
+                // Reset error state when user starts typing
+                this.style.borderColor = 'var(--border-color)';
+                this.style.boxShadow = 'none';
+            });
+        });
+
+        // Animate form sections on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function (entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe form sections
+        document.querySelectorAll('.form-section').forEach((section, index) => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(30px)';
+            section.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+            observer.observe(section);
+        });
+    });
+
+    // Notification system
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: ${type === 'error' ? 'var(--danger-color)' : 'var(--success-color)'};
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            z-index: 10000;
+            transform: translateX(400px);
+            transition: var(--transition);
+        `;
+
+        notification.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'}"></i>
+                <span>${message}</span>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Animate in
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.style.transform = 'translateX(400px)';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+
+    // Auto-fill sample data function (for testing)
+    function fillSampleData(sampleIndex = 0) {
+        const sampleData = [
+            {
+                age: 24, bp: 100, al: 2, su: 0, rbc: 1, pc: 0, pcc: 1, ba: 0,
+                bgr: 136, bu: 60, sc: 1.9, pot: 3.7, wc: 9600, htn: 1, dm: 1,
+                cad: 0, pe: 0, ane: 1
+            },
+            {
+                age: 68, bp: 80, al: 3, su: 0, rbc: 0, pc: 1, pcc: 0, ba: 0,
+                bgr: 157, bu: 162, sc: 9.6, pot: 4.9, wc: 11000, htn: 0, dm: 1,
+                cad: 0, pe: 0, ane: 1
+            },
+            {
+                age: 51, bp: 80, al: 0, su: 0, rbc: 1, pc: 0, pcc: 0, ba: 0,
+                bgr: 121, bu: 27, sc: 0.8, pot: 3.7, wc: 8300, htn: 0, dm: 0,
+                cad: 0, pe: 0, ane: 0
+            }
+        ];
+
+        const data = sampleData[sampleIndex];
+        Object.keys(data).forEach(key => {
+            const input = document.querySelector(`input[name="${key}"]`);
+            if (input) {
+                input.value = data[key];
+                input.style.borderColor = 'var(--success-color)';
+            }
+        });
+    }
+
+    // Add keyboard shortcuts (for development/testing)
+    document.addEventListener('keydown', function (e) {
+        if (e.ctrlKey && e.shiftKey) {
+            if (e.key === '1') {
+                e.preventDefault();
+                fillSampleData(0);
+                showNotification('Sample data 1 filled', 'info');
+            } else if (e.key === '2') {
+                e.preventDefault();
+                fillSampleData(1);
+                showNotification('Sample data 2 filled', 'info');
+            } else if (e.key === '3') {
+                e.preventDefault();
+                fillSampleData(2);
+                showNotification('Sample data 3 filled', 'info');
+            }
+        }
+    });
+
+    // Add form progress indicator
+    function updateProgress() {
+        const inputs = document.querySelectorAll('.form-control');
+        const filledInputs = Array.from(inputs).filter(input => input.value.trim() !== '');
+        const progress = (filledInputs.length / inputs.length) * 100;
+
+        // You can add a progress bar here if desired
+        console.log(`Form completion: ${progress.toFixed(1)}%`);
+    }
+
+    // Monitor form completion
+    document.querySelectorAll('.form-control').forEach(input => {
+        input.addEventListener('input', updateProgress);
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="og:title" content="Kidney-Disease Prediction">
+  <meta name="author" content="Venkata Sreeram">
+  <meta name="og:image" content="static/logo1.png">
+  <meta name="Keywords"
+    content="Flask, Machine Learning, Deep Learning, Artificial Intelligence, AI, ML,DL, Web Development">
+  <meta name="description" content="A Machine Learning and Deep Learning based webapp for Multiple Disease Prediction.">
+  <title>Kidney Disease Predictor</title>
+  <link rel="icon" href="{{ url_for('static', filename = 'logo1.png') }}" type="image/icon type">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      /* Light theme variables */
+      --primary-color: #667eea;
+      --secondary-color: #764ba2;
+      --accent-color: #f093fb;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+      --background-color: #f8fafc;
+      --surface-color: #ffffff;
+      --text-primary: #1a202c;
+      --text-secondary: #4a5568;
+      --text-muted: #718096;
+      --border-color: #e2e8f0;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      --gradient-primary: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      --gradient-accent: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --border-radius: 12px;
+    }
+
+    [data-theme="dark"] {
+      /* Dark theme variables */
+      --primary-color: #818cf8;
+      --secondary-color: #a855f7;
+      --accent-color: #ec4899;
+      --success-color: #34d399;
+      --warning-color: #fbbf24;
+      --danger-color: #f87171;
+      --background-color: #0f172a;
+      --surface-color: #1e293b;
+      --text-primary: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--background-color);
+      color: var(--text-primary);
+      transition: var(--transition);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Enhanced Navigation */
+    .navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-color);
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      padding: 1rem 0;
+      transition: var(--transition);
+      box-shadow: var(--shadow-md);
+    }
+
+    [data-theme="dark"] .navbar {
+      background: rgba(30, 41, 59, 0.95);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .logo:hover {
+      transform: scale(1.05);
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .nav-links a:hover {
+      background: var(--primary-color);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    /* Theme Toggle Button */
+    .theme-toggle {
+      background: var(--surface-color);
+      border: 2px solid var(--border-color);
+      border-radius: 50px;
+      padding: 0.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+      color: var(--text-primary);
+      min-width: 100px;
+      justify-content: center;
+    }
+
+    .theme-toggle:hover {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Mobile Navigation */
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: var(--surface-color);
+        flex-direction: column;
+        padding: 1rem;
+        box-shadow: var(--shadow-lg);
+        border-top: 1px solid var(--border-color);
+      }
+
+      .nav-links.active {
+        display: flex;
+      }
+
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .nav-container {
+        padding: 0 1rem;
+      }
+    }
+
+    /* Main Content */
+    main {
+      flex: 1;
+      padding-top: 100px;
+      padding-bottom: 2rem;
+    }
+
+    .container-fluid {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* Enhanced Footer */
+    footer {
+      background: var(--surface-color);
+      border-top: 1px solid var(--border-color);
+      padding: 2rem 0;
+      margin-top: auto;
+      box-shadow: var(--shadow-md);
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      text-align: center;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 1rem;
+      list-style: none;
+    }
+
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: var(--transition);
+    }
+
+    .footer-links a:hover {
+      background: var(--primary-color);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .footer-credit {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .heart {
+      color: var(--danger-color);
+      animation: heartbeat 1.5s ease-in-out infinite;
+    }
+
+    @keyframes heartbeat {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.1);
+      }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 640px) {
+      .footer-links {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .container-fluid {
+        padding: 0 1rem;
+      }
+    }
+
+    /* Utility Classes */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: var(--border-radius);
+      font-weight: 600;
+      text-decoration: none;
+      transition: var(--transition);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background: var(--gradient-primary);
+      color: white;
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Smooth scrolling */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Loading animation for theme transitions */
+    body.theme-transitioning * {
+      transition: none !important;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="{{ url_for('home') }}" class="logo">
+        <i class="fas fa-heartbeat"></i> KIDNEY HEALTH AI
+      </a>
+
+      <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="{{ url_for('kidneyPage') }}"><i class="fas fa-stethoscope"></i> Prediction</a></li>
+        <li>
+          <button class="theme-toggle" onclick="toggleTheme()">
+            <i class="fas fa-moon" id="themeIcon"></i>
+            <span id="themeText">Dark</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container-fluid">
+      {% block content %}
+      {% endblock %}
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <ul class="footer-links">
+        <li>
+          <a href="https://www.linkedin.com/in/astha-singh2208/" target="_blank">
+            <i class="fab fa-linkedin"></i> LinkedIn
+          </a>
+        </li>
+        <li>
+          <a href="https://github.com/AsthaSingh22-8" target="_blank">
+            <i class="fab fa-github"></i> GitHub
+          </a>
+        </li>
+      </ul>
+      <p class="footer-credit">
+        Made with <span class="heart">&hearts;</span> by Astha Singh
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // Theme Management
+    function initializeTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeButton(savedTheme);
+    }
+
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+      // Add transition class
+      document.body.classList.add('theme-transitioning');
+
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeButton(newTheme);
+
+      // Remove transition class after animation
+      setTimeout(() => {
+        document.body.classList.remove('theme-transitioning');
+      }, 300);
+    }
+
+    function updateThemeButton(theme) {
+      const themeIcon = document.getElementById('themeIcon');
+      const themeText = document.getElementById('themeText');
+
+      if (theme === 'dark') {
+        themeIcon.className = 'fas fa-sun';
+        themeText.textContent = 'Light';
+      } else {
+        themeIcon.className = 'fas fa-moon';
+        themeText.textContent = 'Dark';
+      }
+    }
+
+    // Mobile Menu Management
+    function toggleMobileMenu() {
+      const navLinks = document.getElementById('navLinks');
+      navLinks.classList.toggle('active');
+    }
+
+    // Initialize theme on page load
+    document.addEventListener('DOMContentLoaded', initializeTheme);
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function (event) {
+      const navLinks = document.getElementById('navLinks');
+      const mobileToggle = document.querySelector('.mobile-menu-toggle');
+
+      if (!navLinks.contains(event.target) && !mobileToggle.contains(event.target)) {
+        navLinks.classList.remove('active');
+      }
+    });
+  </script>
+</body>
+
+</html>
